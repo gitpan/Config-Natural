@@ -5,9 +5,10 @@ use Carp qw(carp croak);
 use File::Spec;
 use FileHandle;
 
-use vars qw($CLASS $VERSION);
-$CLASS   = 'Config::Natural';
-$VERSION = '0.99_06';
+{ no strict; 
+  $CLASS   = 'Config::Natural';
+  $VERSION = '0.99';
+}
 
 # class option
 my %options = (
@@ -32,7 +33,7 @@ sub new {
             'list_end_symbol'         => '}', 
             'include_symbol'          => 'include', 
             'case_sensitive'          => 1, 
-            'auto_create_surrounding_list' => 1, 
+            'auto_create_surrounding_list' => 0, 
             'read_hidden_files'       => 0, 
             'strip_indentation'       => 0, 
         }, 
@@ -721,17 +722,43 @@ programs as simple as:
     use strict;
     use Config::Natural;
     use HTML::Template;
-    
+
     my $source = new Config::Natural 'file.src';
     my $tmpl = new HTML::Template type => 'filename', 
             source => 'file.tmpl', associate => $source;
     print $tmpl->output;
 
 And this is not just another trivial example: I use scripts nearly 
-as simple as this one to create most of my pages. 
+as simple as this one to create most of my web pages. 
 
 
 =head1 SYNTAX
+
+In brief, Config::Natural supports the following features in 
+configuration files: 
+
+=over 4
+
+=item *
+
+multiline values, 
+
+=item *
+
+arrays, 
+
+=item *
+
+nested lists, 
+
+=item *
+
+inclusion. 
+
+=back
+
+Any element of the syntax can be changed via the corresponding accessor. 
+
 
 =head2 Affectations
 
@@ -755,9 +782,22 @@ You can also give multi-lines values this way:
 
 Think of this as a "Unix inspired" syntax. Instead of giving the value, 
 you write C<"-"> to mean "the value will follow" (in Unix, this means the 
-data will come from standard input). To end the multi-lines value, you 
-simply put a single dot C<"."> on a line (as in Unix mail, but it needn't 
-be on the first column). 
+data will come from standard input). To end the multi-lines value, put 
+a single dot C<"."> on a line (as in Unix mail, but it needn't be on 
+the first column). 
+
+
+=head2 Arrays
+
+Since version 0.99, Config::Natural also supports arrays, using the 
+following syntax: 
+
+    fruits = (
+        apple
+        banana
+        kiwi
+        orange
+    )
 
 
 =head2 Lists
@@ -781,13 +821,13 @@ Example: a version history
         version = 0.7.0
         comment = First fully functional release as an independent module.
     }
-    
+
     history {
         date = 2000.11.04
         version = 0.7.1
         comment = Minor change in the internal structure: options are now grouped.
     }
-    
+
     history {
         date = 2000.11.05
         version = 0.8.0
@@ -800,7 +840,7 @@ Lists can be nested. Example:
     machine {
         name = neutron
         sys = linux
-        
+
         service {
             type = firewall
             importance = critical
@@ -810,26 +850,28 @@ Lists can be nested. Example:
     machine {
         name = proton
         sys = linux
-        
+
         service {
             type = proxy
             importance = low
-       }
-        
+        }
+
         service {
             type = router
             importance = medium
        }
     }
 
+Note that list blocks need not to contain exactly the same set of parameters
 
-As a shorthand, you can write something like
+If you enable the C<auto_create_surrounding_list> option, you can then write 
+something like
 
     flavour = lemon
     flavour = strawberry
     flavour = vanilla
 
-instead of
+as a shorthand for 
 
     flavours {
         flavour = lemon
@@ -920,7 +962,7 @@ used in order to correct some names which otherwise couldn't be parsed
 by Config::Natural, for example names with spaces. Check in the 
 F<examples/> directory for sample programs that implements such functions. 
 
-You can set up a prefilter using the C<-E<gt>prefilter()> method, or at 
+You can set up a prefilter using the C<prefilter()> method, or at 
 creation time with the C<prefilter> option. 
 
 =head2 Data filter
@@ -930,7 +972,7 @@ This can be used to implement additional features, like a syntax
 for interpolating values. Check in the F<examples/> directory for 
 sample programs that implements such functions. 
 
-You can set up a data filter using the C<-E<gt>filter()> method, or at 
+You can set up a data filter using the C<filter()> method, or at 
 creation time with the C<filter> option. 
 
 
@@ -941,7 +983,7 @@ but instead of being object methods, handlers can be seen as
 "parameters" methods, in that they are bound to a name, and are 
 only called when a parameter with that name is affected. 
 
-Handlers are defined with the C<-E<gt>handler()> method. 
+Handlers are defined with the C<set_handler()> method. 
 
 
 =head1 PARAMETER PATH
@@ -950,7 +992,7 @@ This is a new functionality, introduced in version 0.99.
 
 A parameter path is a way of referring any parameter, even if 
 it's deeply buried inside several layers of nested lists. 
-It is used by the method C<-E<gt>value_of()> to provide a much 
+It is used by the method C<value_of()> to provide a much 
 easier way to read data hidden in nested lists. 
 
 The parameter path syntax is loosely inspired by XPath:
@@ -964,7 +1006,7 @@ Examples:
 
     # same as $config->param('myparam')
     $value = $config->value_of('/myparam');
-    
+
     # same as $config->param('list')->[0]{myparam}
     $value = $config->value_of(/list[0]/myparam);
     $value = $config->value_of(/list/myparam);
@@ -975,9 +1017,23 @@ that list.
 
     # same as $config->param('list')
     $value = $config->value_of('/list[*]');
-    
+
     # same as $config->param('list')->[0]{inner_list}
     $value = $config->value_of('/list/inner_list[*]');
+
+This syntax also applies to arrays, so when you read
+
+    operators = (
+        Ibuki Maya
+        Hyuga Makoto
+        Aoba Shigeru
+    )
+
+then the following code behaves as expected: 
+
+    print $nerv->value_of("/operators");     # prints "Ibuki Maya"
+    print $nerv->value_of("/operators[1]");  # prints "Hyuga Makoto"
+    $ref = $nerv->value_of("/operators[*]"); # return the corresponding arrayref. 
 
 
 =head1 OBJECTS OPTIONS
@@ -986,7 +1042,8 @@ that list.
 
 If the default symbols used in the configuration file syntax doesn't 
 fit your needs, you can change them using the following methods. 
-Of course you must call these I<before> reading the data file(s). 
+Of course you must call these I<before> reading the configuration 
+files. 
 
 =over 4
 
@@ -1003,6 +1060,16 @@ Use this accessor to change the multiline begin symbol. Default is C<"-">.
 =item multiline_end_symbol
 
 Use this accessor to change the multiline end symbol. Default is C<".">.
+
+
+=item array_begin_symbol
+
+Use this accessor to change the array begin symbol. Default is C<"(">.
+
+
+=item array_end_symbol
+
+Use this accessor to change the array end symbol. Default is C<")">.
 
 
 =item comment_line_symbol
@@ -1034,7 +1101,7 @@ Use this accessor to change the include symbol. Default is C<"include">.
 =item auto_create_surrounding_list
 
 Use this accessor to enable or disable the auto creation of surrounding 
-lists. Default is 1 (enabled). 
+lists. Default is 0 (disabled). 
 
 
 =item case_sensitive
@@ -1185,7 +1252,7 @@ This method returns a hashref that allows direct access to the tree
 of parameters. 
 
 
-=item value_of ( PARAMETER_PATH )
+=item value_of ( I<PARAMETER_PATH> )
 
 This method is an easier way to access the values of the parameters. 
 It returns the value of the parameter path given in argument. 
@@ -1222,7 +1289,9 @@ This method sets all the parameters to undef.
 This method returns a dump of the parameters as a string using the 
 current format of the Config::Natural object. It can be used to simply 
 print them out, or to save them to a configuration file which can be 
-re-read by another Config::Natural object.
+re-read by another Config::Natural object. 
+
+Options are passed as a hashref. 
 
 B<Options>
 
@@ -1253,7 +1322,7 @@ after printing each parameter.
 =item write_source ( I<FILEHANDLE> [, I<OPTIONS>] )
 
 This method writes the current object to the given file name or file 
-handle. Remaining parameters, if any, will be passed unmodified to 
+handle. Remaining options, if any, will be passed unmodified to 
 dump_param(). If no argument is given, the file or handle used by 
 the last call of read_source() will be used. 
 
@@ -1272,7 +1341,7 @@ For example:
         $data =~ s/\s*#.*$//go;  # remove comments appearing on 
         return $data          # an affectation line
     }
-    
+
     my $conf = new Config::Natural { filter => \&myfilter };
 
 
@@ -1296,7 +1365,7 @@ be used as the actual value. An example function could look like this:
         my $value = shift;
         return crypt($value, $param);
     }
-    
+
     $conf->set_handler('passwd', \&crypt_handler);
 
 

@@ -40,10 +40,14 @@ t/13filter.t
 t/14prefilter.t
 t/15value_of.t
 t/16param_tree.t
+t/17arrays.t
 t/about-magi.txt
 t/children.txt
+t/eva/units.txt
+t/eva/weapons.txt
 t/eva.txt
 t/nerv/.marduk.txt
+t/nerv/hierarchy.txt
 t/nerv/magi.txt
 t/nerv/pilots.txt
 t/nerv/staff/akagi-ritusko.txt
