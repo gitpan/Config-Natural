@@ -1,0 +1,9 @@
+As this module was previously known as Data::Config, I provide 
+here a compatibility module.  To install it, simply copy it to 
+the Data/ subdirectory of your site_perl directory. 
+
+    $ cp Data/Config.pm $site_perl/Data/
+
+If you have already installed Config::Natural, you can then 
+check that the compatibility module works by running the test.pl
+script. 

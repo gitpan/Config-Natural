@@ -1,0 +1,12 @@
+
+INSTALLATION NOTES
+    
+    As for any Perl module, simply type the following commands:
+    
+      $ perl Makefile.PL
+      $ make
+      $ make install
+    
+    and everything should work fine. 
+    
+    Sorry, they is no complete examples yet. 
