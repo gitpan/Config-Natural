@@ -39,6 +39,7 @@ t/12write_source.t
 t/13filter.t
 t/14prefilter.t
 t/15value_of.t
+t/16param_tree.t
 t/about-magi.txt
 t/children.txt
 t/eva.txt

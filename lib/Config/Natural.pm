@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.99_04';
+$VERSION = '0.99_05';
 
 # class option
 my %options = (
@@ -32,6 +32,7 @@ sub new {
             'case_sensitive'          => 1, 
             'auto_create_surrounding_list' => 1, 
             'read_hidden_files'       => 0, 
+            'strip_indentation'       => 0, 
         }, 
         state => {  }, 
         param => {  }, 
@@ -60,12 +61,12 @@ sub new {
 sub AUTOLOAD {
     no strict;
     my $self = $_[0];
-    my $type = ref $self || die "The fact is: I am not an object, so you can't call me that way.";
+    my $type = ref $self || die "I am not an object, so don't call me that way.";
     my $name = $AUTOLOAD;
     $name =~ s/.*:://;
     
     carp "Unknown option '$name'" 
-      unless exists $options{'quiet'} or $self->{options}{$name};
+      unless exists $options{$name} or defined $self->{options}{$name};
 
     my $code = q{
         sub {
@@ -225,7 +226,10 @@ sub read_source {
             $value = '';
             $_ = <$fh>;
             
+            $self->strip_indentation and my($indent) = (/^(\s*)/);
+            
             while(not /^\s*\Q${multi_end}\E\s*$/) {
+                $indent and s/^$indent//;
                 $value .= $_;
                 $_ = <$fh>;
             }
@@ -462,6 +466,19 @@ sub exec_handler {
 sub all_parameters {
     my $self = shift;
     return keys %{$self->{'param'}}
+}
+
+
+# 
+# param_tree()
+# --------------
+# Return the hash tree of all parameters
+# 
+sub param_tree {
+    my $self = shift;
+    my $tree = {};
+    $tree->{$_} = $self->param($_) for($self->param());
+    return $tree;
 }
 
 
@@ -985,21 +1002,44 @@ Use this accessor to change the include symbol. Default is C<"include">.
 
 =over 4
 
-=item case_sensitive
-
-Use this accessor to change the case behaviour. Default is 1 (case sensitive). 
-
-
 =item auto_create_surrounding_list
 
 Use this accessor to enable or disable the auto creation of surrounding 
 lists. Default is 1 (enabled). 
 
 
+=item case_sensitive
+
+Use this accessor to change the case behaviour. Default is 1 (case sensitive). 
+
+
 =item read_hidden_files
 
 Use this accessor to allow of forbid Config::Natural to read hidden files 
 when reading a directory. Default is 0 (don't read hidden files). 
+
+
+=item strip_indentation
+
+Use this accessor to enable Config::Natural to automatically strip the 
+indentation from multilines values. For example, when this option is 
+enabled, the following: 
+
+    text = -
+        I thought what I'd do was. 
+        I'd pretend I was one of those deaf-mutes or should I?
+            --Laughing Man
+    .
+
+will be converted in
+    
+    text = -
+I thought what I'd do was. 
+I'd pretend I was one of those deaf-mutes or should I?
+    --Laughing Man
+    .
+
+This option is disabled by default. 
 
 =back
 
@@ -1108,6 +1148,12 @@ the value of the parameters of an object.
         mangle => 0 
       }
     );
+
+
+=item param_tree ( )
+
+This method returns a hashref that allows direct access to the tree 
+of parameters. 
 
 
 =item value_of ( PARAMETER_PATH )

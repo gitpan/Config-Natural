@@ -1,6 +1,13 @@
 Version History
 ---------------
 
+2004.03.03 - 0.99b5
+  - Merge two new features proposed by Vladi Belperchinov-Shabanski: 
+    method param_tree(), which returns a tree giving direct access to 
+    the internal tree, and the 'strip_indentation' to automatically 
+    strip indentation from multilines values. 
+  - Corrected a small bug in AUTOLOAD. 
+
 2004.02.03 - 0.99b4
   - Corrected a big dumb bug (probably present since a long time): creating 
     two objects in the same program resulted in a collision, the objects 

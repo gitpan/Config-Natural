@@ -1,5 +1,5 @@
 use Test;
-BEGIN { plan tests => 28 }
+BEGIN { plan tests => 31 }
 use Config::Natural;
 
 # check that the following class methods are available
@@ -25,19 +25,22 @@ ok( defined $obj->can('set_handler') );     #14
 ok( defined $obj->can('has_handler') );     #15
 ok( defined $obj->can('delete_handler') );  #16
 ok( defined $obj->can('filter') );          #17
+ok( defined $obj->can('value_of') );        #18
+ok( defined $obj->can('param_tree') );      #19
 
 # check that all the accessors are present
-ok( defined $obj->comment_line_symbol );    #18
-ok( defined $obj->affectation_symbol );     #19
-ok( defined $obj->multiline_begin_symbol ); #20
-ok( defined $obj->multiline_end_symbol );   #21
-ok( defined $obj->list_begin_symbol );      #22
-ok( defined $obj->list_end_symbol );        #23
-ok( defined $obj->include_symbol );         #24
-ok( defined $obj->case_sensitive );         #25
-ok( defined $obj->auto_create_surrounding_list );  #26
-ok( defined $obj->read_hidden_files );      #27
+ok( defined $obj->comment_line_symbol );    #20
+ok( defined $obj->affectation_symbol );     #21
+ok( defined $obj->multiline_begin_symbol ); #22
+ok( defined $obj->multiline_end_symbol );   #23
+ok( defined $obj->list_begin_symbol );      #24
+ok( defined $obj->list_end_symbol );        #25
+ok( defined $obj->include_symbol );         #26
+ok( defined $obj->case_sensitive );         #27
+ok( defined $obj->auto_create_surrounding_list );  #28
+ok( defined $obj->read_hidden_files );      #29
+ok( defined $obj->strip_indentation );      #30
 
 # delete an object
 undef $obj;
-ok( $obj, undef );  #28
+ok( $obj, undef );  #31
