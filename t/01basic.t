@@ -9,4 +9,4 @@ ok(1);  #01
 
 # check if the version is defined
 ok( defined $Config::Natural::VERSION );  #02
-ok( $Config::Natural::VERSION > 0.01 );   #03
+ok( $Config::Natural::VERSION, '/\d+\.\d+(?:_\d{2})/' );  #03

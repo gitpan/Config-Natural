@@ -1,7 +1,11 @@
 Version History
 ---------------
 
-2003.09.22
+2003.09.27 - 0.96_02
+  - Found a way to prevent Extutils::MakeMaker.PL from 
+    messing with Build.PL. 
+
+2003.09.22 - 0.96
   - Replaced warning() and fatal() with carp() and croak(). 
   - Added syupport for passing options to new(). 
   - Corrected two bugs: comment_line_symbol was not used and 

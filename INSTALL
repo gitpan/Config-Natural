@@ -19,10 +19,7 @@ INSTALLATION NOTES
     The brave ExtUtils::MakeMaker can still be used by simply typing 
     the following commands:
     
-      $ rm Build.PL
-        # necessary, otherwise the build process fails for obscure reasons
       $ perl Makefile.PL
-        # there will be a harmless warning
       $ make
       $ make install
     
