@@ -6,8 +6,7 @@ use File::Spec;
 use FileHandle;
 
 { no strict; 
-  $CLASS   = 'Config::Natural';
-  $VERSION = '1.00_01';
+  $VERSION = '1.00';
 }
 
 # class option
@@ -697,6 +696,10 @@ __END__
 
 Config::Natural - Module that can read easy-to-use configuration files
 
+=head1 VERSION
+
+Version 1.00
+
 =head1 SYNOPSIS
 
 Lets say you have a file F<mail.conf>
@@ -728,8 +731,8 @@ is what seemed to me the most natural way to write these files, hence
 the name of this module. 
 
 One of the reason I wrote this module is that I wanted a very easy way 
-to feed data to HTML::Template based scripts. Therefore the API of 
-Config::Natural is compatible with HTML::Template, and you can write 
+to feed data to C<HTML::Template> based scripts. Therefore the API of 
+C<Config::Natural> is compatible with C<HTML::Template>, and you can write 
 programs as simple as:
 
     use strict;
@@ -747,7 +750,7 @@ as simple as this one to create most of my web pages.
 
 =head1 SYNTAX
 
-In brief, Config::Natural supports the following features in 
+In brief, C<Config::Natural> supports the following features in 
 configuration files: 
 
 =over 4
@@ -811,7 +814,7 @@ C<"Everything that has a beginning has an end">.
 
 =head2 Arrays
 
-Since version 0.99, Config::Natural also supports arrays, using the 
+Since version 0.99, C<Config::Natural> also supports arrays, using the 
 following syntax: 
 
     fruits = (
@@ -920,7 +923,7 @@ as a shorthand for
         flavour = vanilla
     }
 
-As you see, Config::Natural automatically creates a surrounding list 
+As you see, C<Config::Natural> automatically creates a surrounding list 
 around the parameter C<"flavour">, and names this list using the plural 
 of the list name, i.e. C<"flavours"> (ok, I'm only appending a "s" for 
 now C<;)>
@@ -938,7 +941,7 @@ but instead
       param = value
     }
 
-I don't think it's a big deal, because the aim of Config::Natural 
+I don't think it's a big deal, because the aim of C<Config::Natural> 
 is to be fast and to read files with a clear and simple syntax. 
 
 
@@ -968,7 +971,7 @@ being in the first column though.
 
 =head2 Filters
 
-Config::Natural offer three filter mechanisms so that you can modify 
+C<Config::Natural> offer three filter mechanisms so that you can modify 
 the data on-the-fly at two differents moments of the parsing. 
 
    file.txt             read_source()
@@ -991,10 +994,10 @@ the data on-the-fly at two differents moments of the parsing.
 
 =head2 Prefilter
 
-Prefilter occurs before Config::Natural parsing, therefore a prefilter 
+Prefilter occurs before C<Config::Natural> parsing, therefore a prefilter 
 receives the current line as it was read from the file. This can be 
 used in order to correct some names which otherwise couldn't be parsed 
-by Config::Natural, for example names with spaces. Check in the 
+by C<Config::Natural>, for example names with spaces. Check in the 
 F<examples/> directory for sample programs that implements such functions. 
 
 You can set up a prefilter using the C<prefilter()> method, or at 
@@ -1151,13 +1154,13 @@ Use this accessor to change the case behaviour. Default is 1 (case sensitive).
 
 =item read_hidden_files
 
-Use this accessor to allow of forbid Config::Natural to read hidden files 
+Use this accessor to allow of forbid C<Config::Natural> to read hidden files 
 when reading a directory. Default is 0 (don't read hidden files). 
 
 
 =item strip_indentation
 
-Use this accessor to enable Config::Natural to automatically strip the 
+Use this accessor to enable C<Config::Natural> to automatically strip the 
 indentation from multilines values. For example, when this option is 
 enabled, the following: 
 
@@ -1327,9 +1330,9 @@ This method sets all the parameters to undef.
 =item dump_param ( I<OPTIONS> )
 
 This method returns a dump of the parameters as a string using the 
-current format of the Config::Natural object. It can be used to simply 
+current format of the C<Config::Natural> object. It can be used to simply 
 print them out, or to save them to a configuration file which can be 
-re-read by another Config::Natural object. 
+re-read by another C<Config::Natural> object. 
 
 Options are passed as a hashref. 
 
@@ -1390,7 +1393,7 @@ For example:
 This method can be used to set up a new input prefilter. 
 The same rules as for data filters applies, the only difference 
 being in that the prefilter can modify the data before 
-Config::Natural parses it. 
+C<Config::Natural> parses it. 
 
 
 =item set_handler ( I<PARAM, CODEREF> )
@@ -1420,15 +1423,38 @@ This method checks whether a parameter has a handler or not.
 
 =back
 
+=head2 Internal Methods
+
+=over 4
+
+=item exec_handler()
+
+Executes the handler of a parameter.
+
+=item options()
+
+Handles class options. 
+
+=back
+
 
 =head1 AUTHOR
 
-SE<eacute>bastien Aperghis-Tramoni <sebastien@aperghis.net>
+SE<eacute>bastien Aperghis-Tramoni E<lt>sebastien@aperghis.netE<gt>
 
 
-=head1 COPYRIGHT
+=head1 BUGS
 
-Config::Natural is Copyright (C)2000-2004 SE<eacute>bastien Aperghis-Tramoni.
+Please report any bugs or feature requests to
+C<bug-config-natural@rt.cpan.org>, or through the web interface at
+L<https://rt.cpan.org/NoAuth/ReportBug.html?Queue=Config-Natural>. 
+I will be notified, and then you'll automatically be notified of 
+progress on your bug as I make changes.
+
+
+=head1 COPYRIGHT & LICENSE
+
+C<Config::Natural> is Copyright (C)2000-2005 SE<eacute>bastien Aperghis-Tramoni.
 
 This program is free software. You can redistribute it and/or modify it 
 under the same terms as Perl itself. 

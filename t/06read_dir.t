@@ -1,3 +1,4 @@
+use strict;
 use Test;
 BEGIN { plan tests => 30 }
 use Config::Natural;

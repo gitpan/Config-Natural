@@ -1,3 +1,4 @@
+use strict;
 use Test;
 BEGIN { plan test => 3 }
 END { ok(0) unless $::loaded }

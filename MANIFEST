@@ -20,9 +20,9 @@ examples/java-properties.pl
 examples/linux-cpuinfo.pl
 examples/linux-network.pl
 examples/macosx-host.pl
-compat/Data/Config.pm
-compat/README
-compat/test.pl
+compat.tar
+t/00load.t
+t/00prereq.t
 t/01basic.t
 t/02methods.t
 t/03new.t
@@ -41,6 +41,8 @@ t/15value_of.t
 t/16param_tree.t
 t/17arrays.t
 t/18append.t
+t/pod.t
+t/podcover.t
 t/about-magi.txt
 t/children.txt
 t/eva/units.txt

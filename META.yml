@@ -1,17 +1,18 @@
 --- #YAML:1.0
 name: Config-Natural
-version: 1.00_01
+version: 1.00
+author:
+  - |-
+    SE<eacute>bastien Aperghis-Tramoni E<lt>sebastien@aperghis.netE<gt>
+abstract: |-
+  Module that can read easy-to-use configuration files
 license: perl
-distribution_type: module
 requires:
   Carp: 0
   File::Spec: 0
   FileHandle: 0
-recommends: {}
-build_requires: {}
-conflicts: {}
 provides:
   Config::Natural:
     file: lib/Config/Natural.pm
-    version: 1.00_01
-generated_by: Module::Build version 0.19_05
+    version: 1.00
+generated_by: Module::Build version 0.2607

@@ -1,10 +1,11 @@
+use strict;
 use Test;
 BEGIN { plan tests => 31 }
 use Config::Natural;
 
-# check that the following class methods are available
-ok( defined Config::Natural->can('new') );      #01
-ok( defined Config::Natural->can('options') );  #02
+# check that the following functions are available
+ok( defined \&Config::Natural::new );       #01
+ok( defined \&Config::Natural::options );   #02
 
 # create an object
 my $obj = new Config::Natural;

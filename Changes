@@ -1,14 +1,22 @@
 Version History
 ---------------
 
+2005.03.20 - 1.00
+  - Added test scripts 00load.t, 00prereq.t, pod.t, podcover.t
+  - Corrected some test scripts that was failing. 
+  - Updated documentation.
+
+2004.07.04 - 0.99_10
+  - This release replaces the previous one, incorrectly numbered 1.00_01. 
+
 2004.05.09 - 1.00b1
   - Added new semantic upon request by Vladi Belperchinov-Shabanski: 
     values can be appended using += instead of =. See the doc for more. 
 
 2004.05.08 - 1.00b1
   - Fixed a bug discovered by Vladi Belperchinov-Shabanski: a multiline 
-    value without its ending character would make Conig::Natural loops 
-    endlessly. Idem for arrays. 
+    value without its ending character would make Config::Natural loops 
+    endlessly. Same for arrays. 
 
 2004.04.01 - 0.99
   - Option 'auto_create_surrounding_list' is now disabled by default. 
