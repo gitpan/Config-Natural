@@ -7,38 +7,12 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.99_03';
-
-my @base = (
-    options => {
-        'comment_line_symbol'     => '#', 
-        'affectation_symbol'      => '=', 
-        'multiline_begin_symbol'  => '-', 
-        'multiline_end_symbol'    => '.', 
-        'list_begin_symbol'       => '{', 
-        'list_end_symbol'         => '}', 
-        'include_symbol'          => 'include', 
-        'case_sensitive'          => 1, 
-        'auto_create_surrounding_list' => 1, 
-        'read_hidden_files'       => 0, 
-    }, 
-    state => {  }, 
-    param => {  }, 
-    handlers => {  }, 
-    prefilter => 0, 
-    filter => 0, 
-);
+$VERSION = '0.99_04';
 
 # class option
 my %options = (
     quiet => 0, 
 );
-
-## set the accessors for the object options
-for my $option (keys %{$base[1]}) {
-    eval qq| sub $option { _get_set_option(shift, '$option', shift) } |;
-    croak "Initialisation error: $@ " if $@;
-}
 
 
 # 
@@ -46,7 +20,26 @@ for my $option (keys %{$base[1]}) {
 # ---
 sub new {
     my $class = shift;
-    my $self = bless { @base }, $class;
+    my $self = bless {
+        options => {
+            'comment_line_symbol'     => '#', 
+            'affectation_symbol'      => '=', 
+            'multiline_begin_symbol'  => '-', 
+            'multiline_end_symbol'    => '.', 
+            'list_begin_symbol'       => '{', 
+            'list_end_symbol'         => '}', 
+            'include_symbol'          => 'include', 
+            'case_sensitive'          => 1, 
+            'auto_create_surrounding_list' => 1, 
+            'read_hidden_files'       => 0, 
+        }, 
+        state => {  }, 
+        param => {  }, 
+        handlers => {  }, 
+        prefilter => 0, 
+        filter => 0, 
+    }, $class;
+    
     if(ref $_[0] eq 'HASH') {
         my $opts = shift;
         for my $option (keys %$opts) {
@@ -62,31 +55,40 @@ sub new {
 
 
 # 
+# AUTOLOAD()
+# --------
+sub AUTOLOAD {
+    no strict;
+    my $self = $_[0];
+    my $type = ref $self || die "The fact is: I am not an object, so you can't call me that way.";
+    my $name = $AUTOLOAD;
+    $name =~ s/.*:://;
+    
+    carp "Unknown option '$name'" 
+      unless exists $options{'quiet'} or $self->{options}{$name};
+
+    my $code = q{
+        sub {
+            my $self = shift;
+            my $value = $self->{options}{METHOD};
+            $self->{options}{METHOD} = shift if @_;
+            return $value
+        }
+    };
+    $code =~ s/METHOD/$name/g;
+
+    *$AUTOLOAD = eval $code;
+    goto &$AUTOLOAD;
+}
+
+
+# 
 # DESTROY()
 # -------
 sub DESTROY {
     my $self = shift;
     $self->clear_params;
     $self->delete_all;
-}
-
-
-# 
-# _get_set_option()
-# ---------------
-sub _get_set_option {
-    my $self   = shift;
-    my $option = shift;
-    my $value  = shift;
-    
-    carp "Unknown option '$option'" unless exists $self->{options}{$option} or $options{'quiet'};
-    
-    if(defined $value) {
-        ($value, $self->{options}{$option}) = ($self->{options}{$option}, $value);
-        return $value
-    } else {
-        return $self->{options}{$option}
-    }
 }
 
 

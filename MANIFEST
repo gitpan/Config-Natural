@@ -11,8 +11,9 @@ README
 META.yml
 lib/Config/Natural.pm
 examples/dump.pl
-examples/filter-perl.pl
-examples/filter-xpath.pl
+examples/filter-file-slurp.pl
+examples/filter-vars-perl.pl
+examples/filter-vars-xpath.pl
 examples/html-template-dicojap.pl
 examples/inner-modify.pl
 examples/inner-struct.pl

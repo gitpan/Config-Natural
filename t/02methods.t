@@ -27,16 +27,16 @@ ok( defined $obj->can('delete_handler') );  #16
 ok( defined $obj->can('filter') );          #17
 
 # check that all the accessors are present
-ok( defined $obj->can('comment_line_symbol') );     #18
-ok( defined $obj->can('affectation_symbol') );      #19
-ok( defined $obj->can('multiline_begin_symbol') );  #20
-ok( defined $obj->can('multiline_end_symbol') );    #21
-ok( defined $obj->can('list_begin_symbol') );       #22
-ok( defined $obj->can('list_end_symbol') );         #23
-ok( defined $obj->can('include_symbol') );          #24
-ok( defined $obj->can('case_sensitive') );          #25
-ok( defined $obj->can('auto_create_surrounding_list') );  #26
-ok( defined $obj->can('read_hidden_files') );       #27
+ok( defined $obj->comment_line_symbol );    #18
+ok( defined $obj->affectation_symbol );     #19
+ok( defined $obj->multiline_begin_symbol ); #20
+ok( defined $obj->multiline_end_symbol );   #21
+ok( defined $obj->list_begin_symbol );      #22
+ok( defined $obj->list_end_symbol );        #23
+ok( defined $obj->include_symbol );         #24
+ok( defined $obj->case_sensitive );         #25
+ok( defined $obj->auto_create_surrounding_list );  #26
+ok( defined $obj->read_hidden_files );      #27
 
 # delete an object
 undef $obj;

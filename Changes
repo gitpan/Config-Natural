@@ -1,8 +1,17 @@
 Version History
 ---------------
 
+2004.02.03 - 0.99b4
+  - Corrected a big dumb bug (probably present since a long time): creating 
+    two objects in the same program resulted in a collision, the objects 
+    sharing their memory, and therefore their data. 
+  - Accessors are now implemented with AUTOLOAD. 
+
+2004.01.27
+  - Added examples/filter-file-slurp.pl.
+
 2004.01.14 - 0.99b3
-  - Some tests in 04param.t were rewrote for better granularity. 
+  - Some tests in 04param.t were rewriten for better granularity. 
     Also added some tests for clear() and clear_params(). 
   - Added tests for prefilter(). 
 
