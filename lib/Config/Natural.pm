@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.99_05';
+$VERSION = '0.99_06';
 
 # class option
 my %options = (
@@ -26,6 +26,8 @@ sub new {
             'affectation_symbol'      => '=', 
             'multiline_begin_symbol'  => '-', 
             'multiline_end_symbol'    => '.', 
+            'array_begin_symbol'      => '(', 
+            'array_end_symbol'        => ')', 
             'list_begin_symbol'       => '{', 
             'list_end_symbol'         => '}', 
             'include_symbol'          => 'include', 
@@ -61,7 +63,7 @@ sub new {
 sub AUTOLOAD {
     no strict;
     my $self = $_[0];
-    my $type = ref $self || die "I am not an object, so don't call me that way.";
+    my $type = ref $self || croak "I am not an object, so don't call me that way.";
     my $name = $AUTOLOAD;
     $name =~ s/.*:://;
     
@@ -170,6 +172,8 @@ sub read_source {
     my $aff_sym   = $self->affectation_symbol;
     my $multiline = $self->multiline_begin_symbol;
     my $multi_end = $self->multiline_end_symbol;
+    my $array     = $self->array_begin_symbol;
+    my $array_end = $self->array_end_symbol;
     my $list      = $self->list_begin_symbol;
     my $list_end  = $self->list_end_symbol;
     my $include   = $self->include_symbol;
@@ -233,6 +237,21 @@ sub read_source {
                 $value .= $_;
                 $_ = <$fh>;
             }
+        }
+        
+        ## array case
+        if($value =~ /^\s*\Q${array}\E\s*$/) {
+            $value = '';
+            $_ = <$fh>;
+            
+            while(not /^\s*\Q${array_end}\E\s*$/) {
+                s/^\s*//;
+                $value .= $_;
+                $_ = <$fh>;
+            }
+            
+            $self->param({ $field => [ split $/, $value ] });
+            next
         }
         
         ## create a surrounding list if the parameter already exists
@@ -498,11 +517,12 @@ sub value_of {
     my @path = split '/', $param_path;
     not $path[0] and shift @path;
     
-    my($name,$index) = ( (shift @path) =~ /^([^[]+)(?:\[([+-]?\d+)\])?$/ );
-    my $node = $self->param($name);
+    my($name,$index) = ( (shift @path) =~ /^([^[]+)(?:\[([+-]?\d+|\*)\])?$/ );
+    my $node = $self->param($name);  $index ||= 0;
+    return $node if $index eq '*';
     
     if(ref $node) {
-        $node = $node->[int($index||0)];
+        $node = $node->[int($index)];
         for my $p (@path) {
             ($name,$index) = ( ($p) =~ /^([^[]+)(?:\[([+-]?\d+|\*)\])?$/ );
             $node = $node->{$name};  $index ||= 0;
@@ -585,9 +605,9 @@ sub _dump_tree {
     my $level = shift;
     my %state = @_;
     my $str = '';
+    my $sp = $state{'nospace'} ? '' : ' ';
     
     if(ref $tree eq 'HASH') {
-        my $sp = $state{'nospace'} ? '' : ' ';
         
         # add the list name and symbol
         $state{'list_name'} and 
@@ -619,7 +639,16 @@ sub _dump_tree {
                 $sp x (($level-1)*2), $self->list_end_symbol, $/;
     
     } elsif(ref $tree eq 'ARRAY') {
-        for my $list (@$tree) { $str .= _dump_tree($self, $list, $level, %state) }
+        if(ref $tree->[0]) {
+            for my $list (@$tree) { $str .= _dump_tree($self, $list, $level, %state) }
+        } else {
+            $str .= join '', 
+                    $sp x ($level*2), 
+                    $state{'prefix'}, $state{'list_name'}, $sp,
+                    $self-> affectation_symbol, $sp, $self->array_begin_symbol, $/, 
+                    (map {($sp x (($level+1)*2)) . $_ . $/} @$tree), 
+                    $sp x ($level*2), $self->array_end_symbol, $/
+        }
     
     } else {
         warn "unexpected reference type ", ref($tree)

@@ -36,7 +36,7 @@ if($do_test) {
     $dup->read_source($fh);
     
     # check the clones are real twins
-    ok( Data::Dumper::Dumper($obj->{'param'}) , Data::Dumper::Dumper($dup->{'param'}) );  #02
+    ok( $obj->dump_param, $dup->dump_param );  #02
 
 } else {
     print "# Data::Dumper and/or IO::File are not available\n";

@@ -1,6 +1,7 @@
 use Test;
 BEGIN { plan tests => 27 }
 use Config::Natural;
+use File::Spec;
 Config::Natural->options(-quiet => 1);
 my $obj = new Config::Natural;
 

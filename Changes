@@ -1,6 +1,13 @@
 Version History
 ---------------
 
+2004.03.30 - 0.99b6
+  - Added support for array parameters, upon request by Vladi 
+    Belperchinov-Shabanski. ->value_of() and dump_param() have 
+    been updated to handle this new data type.
+  - Changed test 02 in 11dump.t: now using ->dump_param() instead 
+    of Data::Dumper. 
+
 2004.03.03 - 0.99b5
   - Merge two new features proposed by Vladi Belperchinov-Shabanski: 
     method param_tree(), which returns a tree giving direct access to 
