@@ -1,6 +1,9 @@
 Version History
 ---------------
 
+2005.04.03 - 1.01
+  - Corrected t/02methods.t
+
 2005.03.20 - 1.00
   - Added test scripts 00load.t, 00prereq.t, pod.t, podcover.t
   - Corrected some test scripts that was failing. 

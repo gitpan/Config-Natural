@@ -4,30 +4,30 @@ BEGIN { plan tests => 31 }
 use Config::Natural;
 
 # check that the following functions are available
-ok( defined \&Config::Natural::new );       #01
-ok( defined \&Config::Natural::options );   #02
+ok( exists &Config::Natural::new );       #01
+ok( exists &Config::Natural::options );   #02
 
 # create an object
 my $obj = new Config::Natural;
-ok( defined $obj and $obj->isa('Config::Natural') );  #03
+ok( ref $obj and $obj->isa('Config::Natural') );  #03
 
 # check that the following object methods are available
-ok( defined $obj->can('options') );         #04
-ok( defined $obj->can('read_source') );     #05
-ok( defined $obj->can('write_source') );    #06
-ok( defined $obj->can('param') );           #07
-ok( defined $obj->can('all_parameters') );  #08
-ok( defined $obj->can('delete') );          #09
-ok( defined $obj->can('delete_all') );      #10
-ok( defined $obj->can('clear') );           #11
-ok( defined $obj->can('clear_params') );    #12
-ok( defined $obj->can('dump_param') );      #13
-ok( defined $obj->can('set_handler') );     #14
-ok( defined $obj->can('has_handler') );     #15
-ok( defined $obj->can('delete_handler') );  #16
-ok( defined $obj->can('filter') );          #17
-ok( defined $obj->can('value_of') );        #18
-ok( defined $obj->can('param_tree') );      #19
+ok( ref $obj->can('options') );         #04
+ok( ref $obj->can('read_source') );     #05
+ok( ref $obj->can('write_source') );    #06
+ok( ref $obj->can('param') );           #07
+ok( ref $obj->can('all_parameters') );  #08
+ok( ref $obj->can('delete') );          #09
+ok( ref $obj->can('delete_all') );      #10
+ok( ref $obj->can('clear') );           #11
+ok( ref $obj->can('clear_params') );    #12
+ok( ref $obj->can('dump_param') );      #13
+ok( ref $obj->can('set_handler') );     #14
+ok( ref $obj->can('has_handler') );     #15
+ok( ref $obj->can('delete_handler') );  #16
+ok( ref $obj->can('filter') );          #17
+ok( ref $obj->can('value_of') );        #18
+ok( ref $obj->can('param_tree') );      #19
 
 # check that all the accessors are present
 ok( defined $obj->comment_line_symbol );    #20

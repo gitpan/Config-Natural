@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Config-Natural
-version: 1.00
+version: 1.01
 author:
   - |-
     SE<eacute>bastien Aperghis-Tramoni E<lt>sebastien@aperghis.netE<gt>
@@ -14,5 +14,5 @@ requires:
 provides:
   Config::Natural:
     file: lib/Config/Natural.pm
-    version: 1.00
+    version: 1.01
 generated_by: Module::Build version 0.2607

@@ -6,7 +6,7 @@ use File::Spec;
 use FileHandle;
 
 { no strict; 
-  $VERSION = '1.00';
+  $VERSION = '1.01';
 }
 
 # class option
@@ -698,7 +698,7 @@ Config::Natural - Module that can read easy-to-use configuration files
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =head1 SYNOPSIS
 
