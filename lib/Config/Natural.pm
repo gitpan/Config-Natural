@@ -1,19 +1,17 @@
 package Config::Natural;
 
 use strict;
+use Carp qw(carp croak);
 use File::Spec;
 use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.95';
-
-sub warning;
-sub fatal;
+$VERSION = '0.96';
 
 my @base = (
     options => {
-        'comment_line_symbol '    => '#', 
+        'comment_line_symbol'     => '#', 
         'affectation_symbol'      => '=', 
         'multiline_begin_symbol'  => '-', 
         'multiline_end_symbol'    => '.', 
@@ -37,7 +35,7 @@ my %options = (
 ## set the accessors for the object options
 for my $option (keys %{$base[1]}) {
     eval qq| sub $option { _get_set_option(shift, '$option', shift) } |;
-    warning "Initialisation error: $@ " if $@;
+    croak "Initialisation error: $@ " if $@;
 }
 
 
@@ -47,6 +45,13 @@ for my $option (keys %{$base[1]}) {
 sub new {
     my $class = shift;
     my $self = bless { @base }, $class;
+    if(ref $_[0]) {
+        my $opts = shift;
+        for my $option (keys %$opts) {
+            $options{$option} = $opts->{$option} if exists $options{$option};
+            $self->{options}{$option} = $opts->{$option};
+        }
+    }
     $self->read_source(shift) if @_;
     return $self;
 }
@@ -70,7 +75,7 @@ sub _get_set_option {
     my $option = shift;
     my $value  = shift;
     
-    warning "Unknown option '$option' " unless exists $self->{options}{$option};
+    carp "Unknown option '$option' " unless exists $self->{options}{$option} or $options{'quiet'};
     
     if(defined $value) {
         ($value, $self->{options}{$option}) = ($self->{options}{$option}, $value);
@@ -90,14 +95,14 @@ sub options {
     my @ret_list = ();
     
     for my $arg (@{$args->{'get'}}) {
-        warning("Class option '$arg' does not exist ") and next 
-            unless exists $options{$arg};
+        carp "Class option '$arg' does not exist " and next 
+            unless exists $options{$arg} or $options{'quiet'};
         push @ret_list, $options{$arg};
     }
     
     for my $arg (keys %{$args->{'set'}}) {
-        warning("Class option '$arg' does not exist ") and next 
-            unless exists $options{$arg};
+        carp "Class option '$arg' does not exist " and next 
+            unless exists $options{$arg} or $options{'quiet'};
         $options{$arg} = $args->{'set'}{$arg};
     }
     
@@ -117,7 +122,7 @@ sub _read_dir {
     
     return $self->read_source($dir) if -f $dir;
     
-    opendir(DIR, $dir) or fatal "Can't read directory '$dir': $!";
+    opendir(DIR, $dir) or croak "Can't read directory '$dir': $!";
     my @list = grep {!/^\.\.?$/} readdir(DIR);  # remove . and ..
     @list = grep {!/^\./} @list unless $self->read_hidden_files;
     closedir(DIR);
@@ -151,9 +156,10 @@ sub read_source {
     }
     
     # ... else open the file
-    my $fh = _file_or_handle($file) or fatal "Can't open file '$file': $!";
+    my $fh = _file_or_handle($file) or croak "Can't open file '$file': $!";
     
     # keep local copy of the properties we'll use
+    my $comment   = $self->comment_line_symbol;
     my $aff_sym   = $self->affectation_symbol;
     my $multiline = $self->multiline_begin_symbol;
     my $multi_end = $self->multiline_end_symbol;
@@ -167,7 +173,7 @@ sub read_source {
     
     while(defined($_ = <$fh>)) {
         next if /^\s*$/;  # skip empty lines
-        next if /^\s*#/;  # skip comments
+        next if /^\s*$comment/;  # skip comments
         chomp;
         
         ## include statement
@@ -274,8 +280,8 @@ sub param {
     
     ## get the value of the desired parameters
     for my $arg (@{$args->{'get'}}) {
-        warning("Parameter '$arg' does not exist ") and next
-            if not exists $self->{'param'}{_case_($self, $arg)};
+        carp "Parameter '$arg' does not exist " and next
+            if not exists $self->{'param'}{_case_($self, $arg)} and not $options{'quiet'};
         
         push @retlist, $self->{'param'}{_case_($self, $arg)}
     }
@@ -340,7 +346,7 @@ sub _parse_args {
                 }
                 
             } else {
-                warning "Bad ref $ref_type; ignoring it ";
+                carp "Bad ref $ref_type; ignoring it " unless $options{'quiet'};
                 next
             }
         
@@ -349,8 +355,8 @@ sub _parse_args {
            if(substr($arg, 0, 1) eq '-') {
                $arg = substr($arg, 1);
                my $val = shift;
-               warning("Undefined value for parameter '$arg' ") and next 
-                   if not defined $val;
+               carp "Undefined value for parameter '$arg' " and next 
+                   if not defined $val and not $options{'quiet'};
                $args{'set'}{$arg} = $val if $arg
                
            ## getting the value of a parameter
@@ -434,8 +440,8 @@ sub delete {
     my $self = shift;
     
     for my $param (@_) {
-        warning("Parameter '$param' does not exist ") and next 
-            if not exists $self->{'param'}{_case_($self, $param)};
+        carp "Parameter '$param' does not exist " and next 
+            if not exists $self->{'param'}{_case_($self, $param)} and not $options{'quiet'};
         delete $self->{'param'}{_case_($self, $param)}
     }
 }
@@ -480,6 +486,7 @@ sub dump_param {
     my $args = _parse_args(@_);
     my $prefix = $args->{'set'}{'prefix'} || '';
     my $suffix = $args->{'set'}{'suffix'} || '';
+    my $nospace = $args->{'set'}{'nospace'} || '';
     my $str = '';
     
     for my $param (sort $self->all_parameters) {
@@ -487,7 +494,10 @@ sub dump_param {
         ## multi-line value ?
         my $multiline = 1 if $self->param($param) =~ /\n|\r/;
         
-        $str .= join '', $prefix, $param, ' ', $self->affectation_symbol, ' ', 
+        $str .= join '', $prefix, $param, 
+                ($nospace ? '' : ' '), 
+                $self->affectation_symbol, 
+                ($nospace ? '' : ' '), 
                 ($multiline ? $self->multiline_begin_symbol . $/ : ''), 
                 $self->param($param), 
                 ($multiline ? $self->multiline_end_symbol   . $/ : ''), 
@@ -511,27 +521,7 @@ sub write_source {
     
     my $file = shift;
     my $fh = _file_or_handle($file, 'w');
-    print $fh $self->dump_param() or fatal "Error while writing to '$file': $!";
-}
-
-
-# 
-# warning()
-# -------
-sub warning {
-    my @caller = caller(2);
-    my $from = $caller[1] ? " at $caller[1] line $caller[2]" : "";
-    print STDERR "[$CLASS] ", @_, "$from\n" unless $options{quiet}
-}
-
-
-# 
-# fatal()
-# -------
-sub fatal {
-    my @caller = caller(2);
-    my $from = $caller[1] ? " at $caller[1] line $caller[2]" : "";
-    print STDERR "[$CLASS] ", @_, "$from\n" unless $options{quiet}
+    print $fh $self->dump_param(@_) or croak "Error while writing to '$file': $!";
 }
 
 
@@ -945,26 +935,32 @@ B<Options>
 
 =item *
 
-prefix - If you set this option to a string, it will be printed before printing 
-each parameter. 
+C<nospace> - If you set this option to true, no space will be printed 
+around the affectation symbol. 
+
+=item *
+
+C<prefix> - If you set this option to a string, it will be printed 
+before printing each parameter. 
 
 =item * 
 
-suffix - If you set this option to a string, it will be printed after printing 
-each parameter. 
+C<suffix> - If you set this option to a string, it will be printed 
+after printing each parameter. 
 
 =back
 
 
 =item write_source ( )
 
-=item write_source ( I<FILENAME> )
+=item write_source ( I<FILENAME> [, I<OPTIONS>] )
 
-=item write_source ( I<FILEHANDLE> )
+=item write_source ( I<FILEHANDLE> [, I<OPTIONS>] )
 
 This method writes the current object to the given file name or file 
-handle. If no argument is given, the file or handle used by the last 
-call of read_source() will be used. 
+handle. Remaining parameters, if any, will be passed unmodified to 
+dump_param(). If no argument is given, the file or handle used by 
+the last call of read_source() will be used. 
 
 
 =item set_handler ( I<PARAM, CODEREF> )

@@ -15,7 +15,7 @@ Config::Natural->options(-quiet => 1);
 
 if($do_test) {
     my $obj = new Config::Natural;
-    $obj->read_source('t/eva.txt');
+    $obj->read_source(File::Spec->catfile('t','eva.txt'));
     
     # dump $obj in a temp file
     $fh = IO::File->new_tmpfile() or die "Unable to make new temporary file: $!";

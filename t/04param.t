@@ -5,7 +5,7 @@ Config::Natural->options(-quiet => 1);
 my $obj = new Config::Natural;
 
 # there must be no param
-ok( $obj->param == 0 );  #01
+ok( $obj->param, 0 );  #01
 
 # these params are not defined
 ok( not defined $obj->param('') );  #02

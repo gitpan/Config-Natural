@@ -6,9 +6,9 @@ my $obj = new Config::Natural;
 
 # set case-insensitive option
 $obj->case_sensitive(0);
-ok( $obj->case_sensitive == 0 );  #01
+ok( $obj->case_sensitive, 0 );  #01
 
-$obj->read_source('t/children.txt');
+$obj->read_source(File::Spec->catfile('t','children.txt'));
 
 # check that arguments can be retrieved independently of the case
 ok( $obj->param('First_Children'), $obj->param('first_children') );  #02

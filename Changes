@@ -1,9 +1,25 @@
 Version History
 ---------------
 
+2003.09.22
+  - Replaced warning() and fatal() with carp() and croak(). 
+  - Added syupport for passing options to new(). 
+  - Corrected two bugs: comment_line_symbol was not used and 
+    was badly declared in the init hash. 
+  - Added the "nospace" option to dump_param() upon 
+    request by StE<eacute>phane Benoliel. 
+  - write_source() now accepts additional options which will 
+    be passed to dump_param(). 
+
+2003.09.01
+  - *.t: now use File::Spec wherever a path is specified
+
+2003.08.26
+  - *.t: changed some tests from ok($a==1) to ok($a,1)
+
 2003.08.23 - 0.95
   - Added the functionality to read a directory upon 
-    a request by SE<eacute>bastien Gross
+    request by SE<eacute>bastien Gross
   - Updated and corrected the test suite. 
   - Updated and corrected the documentation. 
 
@@ -12,7 +28,7 @@ Version History
 
 2003.08.21 - 0.95 devel
   - Corrected a minor bug in list detection (trailing spaces)
-  - Added an "include" statement upon a request by 
+  - Added an "include" statement upon request by 
     SE<eacute>bastien Gross
 
 2003.08.15 - 0.94
@@ -24,8 +40,8 @@ Version History
 
 2003.02.22 - 0.93
   - Now using a Perl-style version number. 
-  - Added the function write_source() upon StE<eacute>phane 
-    Benoliel request. 
+  - Added the function write_source() upon request by 
+    StE<eacute>phane Benoliel. 
   - Corrected a mistake in the documentation. 
 
 2002.08.15 - 0.9.2

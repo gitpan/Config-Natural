@@ -14,7 +14,7 @@ use Config::Natural;
 
 if($do_test) {
     my $obj = new Config::Natural;
-    $obj->read_source('t/eva.txt');
+    $obj->read_source(File::Spec->catfile('t','eva.txt'));
     
     $obj->param({
       Eva_03 => $obj->param('Eva_03')." - Became the 13th Angel when possessed by Bardiel", 

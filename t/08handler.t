@@ -9,7 +9,7 @@ $obj->set_handler('Third_Children', sub{"baka ".(split' ',$_[1])[1]."!!"});
 ok( $obj->has_handler('Third_Children') );  #01
 
 # read the data from a file
-$obj->read_source('t/children.txt');
+$obj->read_source(File::Spec->catfile('t','children.txt'));
 ok( $obj->param('Third_Children'), "baka Shinji!!" );  #02
 
 # delete the handler

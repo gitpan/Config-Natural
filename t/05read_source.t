@@ -1,15 +1,16 @@
 use Test;
+use File::Spec;
 BEGIN { plan tests => 26 }
 use Config::Natural;
 Config::Natural->options(-quiet => 1);
 my $obj = new Config::Natural;
 
 # read the data from a file
-$obj->read_source('t/children.txt');
+$obj->read_source(File::Spec->catfile('t','children.txt'));
 # check the internal filename
-ok( $obj->{'state'}{'filename'} eq 't/children.txt' );  #01
+ok( $obj->{'state'}{'filename'}, File::Spec->catfile('t','children.txt') );  #01
 # check the number of actual parameters
-ok( scalar $obj->param == 5 );  #02
+ok( scalar $obj->param, 5 );  #02
 
 # check the data is as expected
 ok( $obj->param('First_Children' ), 'Ayanami Rei'         );  #03
@@ -20,10 +21,10 @@ ok( $obj->param('Fifth_Children' ), 'Nagisa Kaoru'        );  #07
 
 
 # read additionnal data from another file
-$obj->read_source('t/eva.txt');
+$obj->read_source(File::Spec->catfile('t','eva.txt'));
 # the internal filename must be the last given to read_source()
-ok( $obj->{'state'}{'filename'} eq 't/eva.txt' );  #08
-ok( scalar $obj->param == 11 );  #08
+ok( $obj->{'state'}{'filename'}, File::Spec->catfile('t','eva.txt') );  #08
+ok( scalar $obj->param, 11 );  #08
 
 # check the children are still here
 ok( $obj->param('First_Children' ), 'Ayanami Rei'         );  #03
@@ -46,7 +47,7 @@ $obj = new Config::Natural;
 
 # read the data from a filehandle
 $obj->read_source(\*DATA);
-ok( scalar $obj->param == 5 );  #13
+ok( scalar $obj->param, 5 );  #13
 
 # check the data is as expected
 ok( $obj->param('First_Children' ), 'Ayanami Rei'         );  #14
