@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.98';
+$VERSION = '0.99_02';
 
 my @base = (
     options => {
@@ -79,7 +79,7 @@ sub _get_set_option {
     my $option = shift;
     my $value  = shift;
     
-    carp "Unknown option '$option' " unless exists $self->{options}{$option} or $options{'quiet'};
+    carp "Unknown option '$option'" unless exists $self->{options}{$option} or $options{'quiet'};
     
     if(defined $value) {
         ($value, $self->{options}{$option}) = ($self->{options}{$option}, $value);
@@ -99,13 +99,13 @@ sub options {
     my @ret_list = ();
     
     for my $arg (@{$args->{'get'}}) {
-        carp "Class option '$arg' does not exist " and next 
+        carp "Class option '$arg' does not exist" and next 
             unless exists $options{$arg} or $options{'quiet'};
         push @ret_list, $options{$arg};
     }
     
     for my $arg (keys %{$args->{'set'}}) {
-        carp "Class option '$arg' does not exist " and next 
+        carp "Class option '$arg' does not exist" and next 
             unless exists $options{$arg} or $options{'quiet'};
         $options{$arg} = $args->{'set'}{$arg};
     }
@@ -173,7 +173,7 @@ sub read_source {
     my $state     = $self->{'state'};
     
     # store the name of the last opened file
-    $state->{filename} = $file;
+    $state->{'filename'} = $file;
     
     while(defined($_ = <$fh>)) {
         ## execute the prefilter if present
@@ -186,7 +186,7 @@ sub read_source {
         ## include statement
         if(/^\s*\Q${include}\E\s+(\S+)\s*$/) {
             my $included = $1;
-            my @path = File::Spec->splitdir($state->{filename});
+            my @path = File::Spec->splitdir($state->{'filename'});
             pop @path;  # remove the current file name from the path
             $included = File::Spec->catdir(@path, $included);
             $self->read_source($included);
@@ -287,7 +287,7 @@ sub param {
     
     ## get the value of the desired parameters
     for my $arg (@{$args->{'get'}}) {
-        carp "Parameter '$arg' does not exist " and next
+        carp "Parameter '$arg' does not exist" and next
             if not exists $self->{'param'}{_case_($self, $arg)} and not $options{'quiet'};
         
         push @retlist, $self->{'param'}{_case_($self, $arg)}
@@ -352,7 +352,7 @@ sub _parse_args {
                 }
                 
             } else {
-                carp "Bad ref $ref_type; ignoring it " unless $options{'quiet'};
+                carp "Bad ref $ref_type; ignoring it" unless $options{'quiet'};
                 next
             }
         
@@ -361,7 +361,7 @@ sub _parse_args {
            if(substr($arg, 0, 1) eq '-') {
                $arg = substr($arg, 1);
                my $val = shift;
-               carp "Undefined value for parameter '$arg' " and next 
+               carp "Undefined value for parameter '$arg'" and next 
                    if not defined $val and not $options{'quiet'};
                $args{'set'}{$arg} = $val if $arg
                
@@ -464,6 +464,38 @@ sub all_parameters {
 
 
 # 
+# value_of()
+# --------
+# Return the value of the specified parameter
+# 
+sub value_of {
+    my $self = shift;
+    my $param_path = shift;
+    
+    # handle simple cases simply...
+    return $self->{'param'}{$param_path} if $self->{'param'}{$param_path};
+    
+    # handle more complex cases nicely.
+    my @path = split '/', $param_path;
+    not $path[0] and shift @path;
+    
+    my($name,$index) = ( (shift @path) =~ /^([^[]+)(?:\[([+-]?\d+)\])?$/ );
+    my $node = $self->param($name);
+    
+    if(ref $node) {
+        $node = $node->[int($index||0)];
+        for my $p (@path) {
+            ($name,$index) = ( ($p) =~ /^([^[]+)(?:\[([+-]?\d+|\*)\])?$/ );
+            $node = $node->{$name};  $index ||= 0;
+            ref $node and $index ne '*' and $node = $node->[int($index)];
+        }
+    }
+    
+    return $node
+}
+
+
+# 
 # delete()
 # ------
 # Delete the given parameters
@@ -472,7 +504,7 @@ sub delete {
     my $self = shift;
     
     for my $param (@_) {
-        carp "Parameter '$param' does not exist " and next 
+        carp "Parameter '$param' does not exist" and next 
             if not exists $self->{'param'}{_case_($self, $param)} and not $options{'quiet'};
         delete $self->{'param'}{_case_($self, $param)}
     }
@@ -864,6 +896,42 @@ only called when a parameter with that name is affected.
 Handlers are defined with the C<-E<gt>handler()> method. 
 
 
+=head1 PARAMETER PATH
+
+This is a new functionality, introduced in version 0.99. 
+
+A parameter path is a way of referring any parameter, even if 
+it's deeply buried inside several layers of nested lists. 
+It is used by the method C<-E<gt>value_of()> to provide a much 
+easier way to read data hidden in nested lists. 
+
+The parameter path syntax is loosely inspired by XPath:
+
+    path = /level0[index0]/level1[index1]/.../param
+
+Indexes start at zero, like in Perl (and unlike XPath). 
+When an index is omitted, C<[0]> is assumed. 
+
+Examples: 
+
+    # same as $config->param('myparam')
+    $value = $config->value_of('/myparam');
+    
+    # same as $config->param('list')->[0]{myparam}
+    $value = $config->value_of(/list[0]/myparam);
+    $value = $config->value_of(/list/myparam);
+
+If you want to get back a whole list, instead of a single value, 
+use C<[*]> as the last index, and it will return the reference to 
+that list. 
+
+    # same as $config->param('list')
+    $value = $config->value_of('/list[*]');
+    
+    # same as $config->param('list')->[0]{inner_list}
+    $value = $config->value_of('/list/inner_list[*]');
+
+
 =head1 OBJECTS OPTIONS
 
 =head2 Syntax Options
@@ -1040,6 +1108,13 @@ the value of the parameters of an object.
     );
 
 
+=item value_of ( PARAMETER_PATH )
+
+This method is an easier way to access the values of the parameters. 
+It returns the value of the parameter path given in argument. 
+Check L<"PARAMETER PATH"> for more information and some examples.
+
+
 =item all_parameters ( )
 
 This method returns the list of the parameters of an object.
@@ -1167,7 +1242,7 @@ SE<eacute>bastien Aperghis-Tramoni <sebastien@aperghis.net>
 
 =head1 COPYRIGHT
 
-Config::Natural is Copyright (C)2000-2003 SE<eacute>bastien Aperghis-Tramoni.
+Config::Natural is Copyright (C)2000-2004 SE<eacute>bastien Aperghis-Tramoni.
 
 This program is free software. You can redistribute it and/or modify it 
 under the same terms as Perl itself. 

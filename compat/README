@@ -1,9 +1,15 @@
-As this module was previously known as Data::Config, I provide 
-here a compatibility module.  To install it, simply copy it to 
-the Data/ subdirectory of your site_perl directory. 
+BACKWARD COMPATIBILITY
 
-    $ cp Data/Config.pm $site_perl/Data/
-
-If you have already installed Config::Natural, you can then 
-check that the compatibility module works by running the test.pl
-script. 
+   As this module was previously known as Data::Config, I provide 
+   here a compatibility module.  To install it, first install 
+   Config::Natural, then simply copy the file Data/Config.pm to 
+   the Data/ subdirectory of your site_perl directory. 
+   
+       $ cp Data/Config.pm $site_perl/Data/
+   
+   You can then check that the compatibility module works by running 
+   the test.pl script. 
+   
+   By default, this compatibility module will print a warning message
+   upon loading.  If this bothers you, you can simply delete the 
+   carp() call in Data/Config.pm. 

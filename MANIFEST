@@ -1,12 +1,13 @@
-ARTISTIC
-Build.PL
-Changes
-COPYING
-INSTALL
 MANIFEST
 MANIFEST.SKIP
-README
+LICENSE
+LICENSE.Artistic
+LICENSE.GPL
+Build.PL
 Makefile.PL
+Changes
+INSTALL
+README
 META.yml
 lib/Config/Natural.pm
 examples/dump.pl
@@ -18,6 +19,7 @@ examples/inner-struct.pl
 examples/java-properties.pl
 examples/linux-cpuinfo.pl
 examples/linux-network.pl
+examples/macosx-host.pl
 t/01basic.t
 t/02methods.t
 t/03new.t
@@ -30,7 +32,8 @@ t/09case.t
 t/10delete.t
 t/11dump.t
 t/12write_source.t
-t/all.t
+t/13filter.t
+t/14value_of.t
 t/children.txt
 t/eva.txt
 t/nerv/.marduk.txt

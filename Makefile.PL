@@ -3,9 +3,13 @@ use ExtUtils::MakeMaker;
 WriteMakefile (
     'NAME' => 'Config::Natural', 
     'VERSION_FROM' => 'lib/Config/Natural.pm', 
-    'PREREQ_PM' => {}, 
+    'PREREQ_PM' => {
+        'Carp' => 0, 
+        'File::Spec' => 0, 
+        'FileHandle' => 0, 
+    }, 
     'PL_FILES' => {}, 
-    ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM => 'lib/Config/Natural.pm', # retrieve abstract from module
+    ($] >= 5.005 ?
+      (ABSTRACT_FROM => 'lib/Config/Natural.pm', 
        AUTHOR => 'Sébastien Aperghis-Tramoni <sebastien@aperghis.net>') : ()),
 );

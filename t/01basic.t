@@ -1,10 +1,10 @@
 use Test;
 BEGIN { plan test => 3 }
-END { ok(0) unless $loaded }
+END { ok(0) unless $::loaded }
 
 # try to load the module
 use Config::Natural;
-$loaded = 1;
+$::loaded = 1;
 ok(1);  #01
 
 # check if the version is defined

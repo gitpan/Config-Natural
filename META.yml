@@ -1,14 +1,17 @@
 --- #YAML:1.0
 name: Config-Natural
-version: 0.98
+version: 0.99_02
 license: perl
 distribution_type: module
-requires: {}
+requires:
+  Carp: 0
+  File::Spec: 0
+  FileHandle: 0
 recommends: {}
 build_requires: {}
 conflicts: {}
 provides:
   Config::Natural:
     file: lib/Config/Natural.pm
-    version: 0.98
+    version: 0.99_02
 generated_by: Module::Build version 0.19_05
