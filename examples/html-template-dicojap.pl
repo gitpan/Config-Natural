@@ -1,15 +1,13 @@
 #!/usr/bin/perl -w
 # 
 # This is an example showing how you can use Config::Natural 
-# with HTML::Template. 
+# with HTML::Template. It also shows how to use a handler. 
 # 
 use strict;
 use Config::Natural;
 use HTML::Template;
 
 $|=1;
-
-print "using Config::Natural v$Config::Natural::VERSION\n";
 
 my $source = new Config::Natural;
 

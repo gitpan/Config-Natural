@@ -13,13 +13,16 @@ lib/Config/Natural.pm
 examples/dump.pl
 examples/filter-perl.pl
 examples/filter-xpath.pl
-examples/html-template.pl
+examples/html-template-dicojap.pl
 examples/inner-modify.pl
 examples/inner-struct.pl
 examples/java-properties.pl
 examples/linux-cpuinfo.pl
 examples/linux-network.pl
 examples/macosx-host.pl
+compat/Data/Config.pm
+compat/README
+compat/test.pl
 t/01basic.t
 t/02methods.t
 t/03new.t
@@ -33,7 +36,9 @@ t/10delete.t
 t/11dump.t
 t/12write_source.t
 t/13filter.t
-t/14value_of.t
+t/14prefilter.t
+t/15value_of.t
+t/about-magi.txt
 t/children.txt
 t/eva.txt
 t/nerv/.marduk.txt
@@ -46,6 +51,3 @@ t/nerv/staff/katsuragi-misato.txt
 t/nerv.txt
 t/pilots.txt
 t/shito.txt
-compat/Data/Config.pm
-compat/README
-compat/test.pl

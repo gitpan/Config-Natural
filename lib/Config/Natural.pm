@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.99_02';
+$VERSION = '0.99_03';
 
 my @base = (
     options => {

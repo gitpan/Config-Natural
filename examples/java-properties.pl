@@ -6,6 +6,7 @@
 # 
 use strict;
 use Config::Natural;
+use File::Spec;
 
 print STDERR <<'USAGE' and exit unless $ENV{'JAVA_HOME'};
 Please set JAVA_HOME accordingly to your configuration.
@@ -14,7 +15,8 @@ USAGE
 # I use this trick because on Mac OS X, there is no jre/ 
 # sub-directory in the Java directory. 
 my $JAVA_HOME = $ENV{'JAVA_HOME'};
-$JAVA_HOME .= 'jre' if -d "$JAVA_HOME/jre";
+$JAVA_HOME = File::Spec->catfile($JAVA_HOME, 'jre') 
+    if -d File::Spec->catfile($JAVA_HOME, 'jre');
 
 my $javacfg = new Config::Natural { 
         auto_create_surrounding_list => 0, 

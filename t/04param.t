@@ -1,5 +1,5 @@
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 33 }
 use Config::Natural;
 Config::Natural->options(-quiet => 1);
 my $obj = new Config::Natural;
@@ -24,33 +24,56 @@ ok( $obj->param == 2 );  #06
 
 # affecting three params (Tk-style), then checking they're there
 $obj->param(-shito_4 => 'Samsiel', -shito_6 => 'Gagiel', -shito_8 => 'Sandalfon');
-ok( @p = $obj->param(qw(shito_4 shito_6 shito_8)) 
-    and $p[0] eq 'Samsiel' 
-    and $p[1] eq 'Gagiel' 
-    and $p[2] eq 'Sandalfon' );  #07
+my @p = $obj->param(qw(shito_4 shito_6 shito_8));
+ok( $p[0], 'Samsiel'   );   #07
+ok( $p[1], 'Gagiel'    );   #08
+ok( $p[2], 'Sandalfon' );   #09
 
 # affecting three params (hashref), then checking they're there
 $obj->param({shito_7 => 'Israfel', shito_9 => 'Matarael', shito_10 => 'Saraqiel'});
-ok( @p = $obj->param(qw(shito_7 shito_9 shito_10)) 
-    and $p[0] eq 'Israfel' 
-    and $p[1] eq 'Matarael' 
-    and $p[2] eq 'Saraqiel' );  #08
+@p = $obj->param(qw(shito_7 shito_9 shito_10));
+ok( $p[0], 'Israfel'   );   #10
+ok( $p[1], 'Matarael'  );   #11
+ok( $p[2], 'Saraqiel'  );   #12
 
 # affecting some params (Tk-style) while reading the value of others
-@p = $obj->param(shito_7, -shito_11 => 'Iroel', shito_5, -shito_12 => 'Leliel');
-ok( $p[0] eq 'Israfel' and $p[1] eq 'Ramiel');  #09
+@p = $obj->param('shito_7', -shito_11 => 'Iroel', 'shito_5', -shito_12 => 'Leliel');
+ok( $p[0], 'Israfel'   );   #13
+ok( $p[1], 'Ramiel'    );   #14
 
 # affecting some params (hashref) while reading the value of others
-@p = $obj->param(shito_9, {shito_13 => 'Bardiel'}, shito_3, {shito_14 => 'Zeruel'});
-ok( $p[0] eq 'Matarael' and $p[1] eq 'Sachiel' 
-    and $obj->param('shito_13') eq 'Bardiel' 
-    and $obj->param('shito_14') eq 'Zeruel');  #10
+@p = $obj->param('shito_9', {shito_13 => 'Bardiel'}, 'shito_3', {shito_14 => 'Zeruel'});
+ok( $p[0], 'Matarael'  );   #15
+ok( $p[1], 'Sachiel'   );   #16
+ok( $obj->param('shito_13'), 'Bardiel' );  #17
+ok( $obj->param('shito_14'), 'Zeruel'  );  #18
 
 # affecting some params (both styles) while reading the value of others
-@p = $obj->param(shito_14, -shito_15 => 'Arael', shito_10, 
-     {shito_16 => 'Armisael', shito_17 => 'Tabris'}, shito_6);
-ok( $p[0] eq 'Zeruel' and $p[1] eq 'Saraqiel' and $p[2] eq 'Gagiel'
-    and $obj->param('shito_15') eq 'Arael' 
-    and $obj->param('shito_16') eq 'Armisael' 
-    and $obj->param('shito_17') eq 'Tabris');  #11
+@p = $obj->param('shito_14', -shito_15 => 'Arael', 'shito_10', 
+     {shito_16 => 'Armisael', shito_17 => 'Tabris'}, 'shito_6');
+ok( $p[0] eq 'Zeruel'   );  #19
+ok( $p[1] eq 'Saraqiel' );  #20
+ok( $p[2] eq 'Gagiel'   );  #21
+ok( $obj->param('shito_15') eq 'Arael'    );  #22
+ok( $obj->param('shito_16') eq 'Armisael' );  #23
+ok( $obj->param('shito_17') eq 'Tabris'   );  #24
+
+
+# now clearing a parameter
+$obj->clear('shito_1');
+ok( $obj->param('shito_1'),  '' );  #25
+
+# now clearing a list of parameters
+$obj->clear(qw(shito_2 shito_3 shito_4 shito_5));
+ok( $obj->param('shito_2'),  '' );  #26
+ok( $obj->param('shito_3'),  '' );  #27
+ok( $obj->param('shito_4'),  '' );  #28
+ok( $obj->param('shito_5'),  '' );  #29
+
+# now clearing all parameters
+$obj->clear_params;
+ok( $obj->param('shito_6'),  '' );  #30
+ok( $obj->param('shito_9'),  '' );  #31
+ok( $obj->param('shito_13'), '' );  #32
+ok( $obj->param('shito_17'), '' );  #33
 

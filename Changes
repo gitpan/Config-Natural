@@ -1,6 +1,11 @@
 Version History
 ---------------
 
+2004.01.14 - 0.99b3
+  - Some tests in 04param.t were rewrote for better granularity. 
+    Also added some tests for clear() and clear_params(). 
+  - Added tests for prefilter(). 
+
 2004.01.14 - 0.99b2
   - Updated documentation.
 
