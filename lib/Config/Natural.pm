@@ -7,7 +7,7 @@ use FileHandle;
 
 { no strict; 
   $CLASS   = 'Config::Natural';
-  $VERSION = '0.99';
+  $VERSION = '1.00_01';
 }
 
 # class option
@@ -25,6 +25,7 @@ sub new {
         options => {
             'comment_line_symbol'     => '#', 
             'affectation_symbol'      => '=', 
+            'append_symbol'           => '+', 
             'multiline_begin_symbol'  => '-', 
             'multiline_end_symbol'    => '.', 
             'array_begin_symbol'      => '(', 
@@ -171,6 +172,7 @@ sub read_source {
     # keep local copy of the properties we'll use
     my $comment   = $self->comment_line_symbol;
     my $aff_sym   = $self->affectation_symbol;
+    my $app_sym   = $self->append_symbol;
     my $multiline = $self->multiline_begin_symbol;
     my $multi_end = $self->multiline_end_symbol;
     my $array     = $self->array_begin_symbol;
@@ -183,7 +185,7 @@ sub read_source {
     # store the name of the last opened file
     $state->{'filename'} = $file;
     
-    while(defined($_ = <$fh>)) {
+    while(<$fh>) {
         ## execute the prefilter if present
         $self->{'prefilter'} and $_ = &{$self->{'prefilter'}}($self, $_);
         
@@ -224,11 +226,17 @@ sub read_source {
         }
         
         ## parameter affectation
-        my($field,$value) = (/^\s*(\S+)\s*\Q${aff_sym}\E\s*(.*)$/);
+        my($field,$value) = (/^\s*(\S+)\s*\Q${app_sym}\E?\s*\Q${aff_sym}\E\s*(.*)$/);
+        
+        ## detect append mode
+        my $append = /^\s*(\S+)\s*\Q${app_sym}\E\s*\Q${aff_sym}\E\s*(.*)$/;
+        my $prev_value = ${$state->{'lists_names'}}[-1] ? 
+                $state->{'lists_stacks'}[-1]{$field} : $self->{'param'}{$field};
         
         ## multiline case
         if($value =~ /^\s*\Q${multiline}\E\s*$/) {
             $value = '';
+            $value = $prev_value . $value and $append = 0 if $append;
             $_ = <$fh>;
             
             $self->strip_indentation and my($indent) = (/^(\s*)/);
@@ -237,6 +245,7 @@ sub read_source {
                 $indent and s/^$indent//;
                 $value .= $_;
                 $_ = <$fh>;
+                last if eof($fh)
             }
         }
         
@@ -249,9 +258,12 @@ sub read_source {
                 s/^\s*//;
                 $value .= $_;
                 $_ = <$fh>;
+                last if eof($fh)
             }
             
-            $self->param({ $field => [ split $/, $value ] });
+            $append ? 
+              ( push @$prev_value, split($/, $value) and $append = 0 )
+              : $self->param({ $field => [ split $/, $value ] });
             next
         }
         
@@ -279,6 +291,7 @@ sub read_source {
         }
         
         ## add the new value to the object parameters
+        $value = $prev_value . $value if $append;
         $self->param({ $field => $value });
     }
 }
@@ -786,6 +799,15 @@ data will come from standard input). To end the multi-lines value, put
 a single dot C<"."> on a line (as in Unix mail, but it needn't be on 
 the first column). 
 
+Since version 1.00, values can also be appended by prefixing the append 
+symbol, by default C<+>, so if you write 
+
+    motto = Everything that has a beginning 
+    motto += has an end
+
+the parameter C<motto> will have the value 
+C<"Everything that has a beginning has an end">. 
+
 
 =head2 Arrays
 
@@ -798,6 +820,19 @@ following syntax:
         kiwi
         orange
     )
+
+Arrays can also be appended using the same syntax as for usual values: 
+
+    fruits = (
+        apple
+        banana
+    )
+    fruits += (
+        kiwi
+        orange
+    )
+
+The array C<fruits> now has the same value as in the previous example. 
 
 
 =head2 Lists
@@ -1050,6 +1085,11 @@ files.
 =item affectation_symbol
 
 Use this accessor to change the affectation symbol. Default is C<"=">.
+
+
+=item append_symbol
+
+Use this accessor to change the append symbol. Default is C<"+">.
 
 
 =item multiline_begin_symbol

@@ -1,6 +1,15 @@
 Version History
 ---------------
 
+2004.05.09 - 1.00b1
+  - Added new semantic upon request by Vladi Belperchinov-Shabanski: 
+    values can be appended using += instead of =. See the doc for more. 
+
+2004.05.08 - 1.00b1
+  - Fixed a bug discovered by Vladi Belperchinov-Shabanski: a multiline 
+    value without its ending character would make Conig::Natural loops 
+    endlessly. Idem for arrays. 
+
 2004.04.01 - 0.99
   - Option 'auto_create_surrounding_list' is now disabled by default. 
   - Documentation was updated. 

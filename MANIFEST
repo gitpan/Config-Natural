@@ -1,5 +1,4 @@
 MANIFEST
-MANIFEST.SKIP
 LICENSE
 LICENSE.Artistic
 LICENSE.GPL
@@ -41,6 +40,7 @@ t/14prefilter.t
 t/15value_of.t
 t/16param_tree.t
 t/17arrays.t
+t/18append.t
 t/about-magi.txt
 t/children.txt
 t/eva/units.txt
