@@ -9,8 +9,15 @@ README
 Makefile.PL
 META.yml
 lib/Config/Natural.pm
+examples/dump.pl
+examples/filter-perl.pl
+examples/filter-xpath.pl
 examples/html-template.pl
+examples/inner-modify.pl
 examples/inner-struct.pl
+examples/java-properties.pl
+examples/linux-cpuinfo.pl
+examples/linux-network.pl
 t/01basic.t
 t/02methods.t
 t/03new.t
@@ -23,6 +30,7 @@ t/09case.t
 t/10delete.t
 t/11dump.t
 t/12write_source.t
+t/all.t
 t/children.txt
 t/eva.txt
 t/nerv/.marduk.txt

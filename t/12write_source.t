@@ -1,7 +1,7 @@
 use Test;
 BEGIN {
-  # In order to make this test, we need Data::Dumper,
-  # but it is not required by Config::Natural, therefore
+  # In order to make this test, we need Data::Dumper, but it 
+  # is not required for normal use of Config::Natural, therefore
   # it the module is not available, the test is skipped.
   eval {
     require Data::Dumper;

@@ -21,7 +21,7 @@ ok( $magi->[0]{brain}[2]{personality}, 'woman' );     #08
 # check that the information about Nerv staff is present
 ok( defined $obj->param('staff') );            #09
 my $staff = $obj->param('staff');
-ok( scalar @$staff, 4 );                      #10
+ok( scalar @$staff, 4 );                       #10
 for my $person (@$staff) {                     #11,12,13,14
     ok( $person->{role}, "Nerv director and commander" )
         if $person->{name} eq "Ikari Gendo";
@@ -40,7 +40,7 @@ ok( $obj->param('Marduk'), $obj->read_hidden_files ? 'Nerv' : undef );  #15
 # now re-read everything but with read_hidden_files enabled
 undef $obj;
 $obj = new Config::Natural;
-$obj-> read_hidden_files(1);
+$obj->read_hidden_files(1);
 $obj->read_source(File::Spec->catdir('t','nerv'));
 
 # check that information about MAGI is still present
@@ -57,7 +57,7 @@ ok( $magi->[0]{brain}[2]{personality}, 'woman' );     #23
 # check that the information about Nerv staff is still present
 ok( defined $obj->param('staff') );            #24
 $staff = $obj->param('staff');
-ok( scalar @$staff, 4 );                      #25
+ok( scalar @$staff, 4 );                       #25
 for my $person (@$staff) {                     #26,27,28,29
     ok( $person->{role}, "Nerv director and commander" )
         if $person->{name} eq "Ikari Gendo";

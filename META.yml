@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Config-Natural
-version: 0.97
+version: 0.98
 license: perl
 distribution_type: module
 requires: {}
@@ -10,5 +10,5 @@ conflicts: {}
 provides:
   Config::Natural:
     file: lib/Config/Natural.pm
-    version: 0.97
+    version: 0.98
 generated_by: Module::Build version 0.19_05

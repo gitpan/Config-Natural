@@ -46,7 +46,7 @@ ok( $p[0] eq 'Matarael' and $p[1] eq 'Sachiel'
     and $obj->param('shito_13') eq 'Bardiel' 
     and $obj->param('shito_14') eq 'Zeruel');  #10
 
-# affectiong some params (both styles) while reading the value of others
+# affecting some params (both styles) while reading the value of others
 @p = $obj->param(shito_14, -shito_15 => 'Arael', shito_10, 
      {shito_16 => 'Armisael', shito_17 => 'Tabris'}, shito_6);
 ok( $p[0] eq 'Zeruel' and $p[1] eq 'Saraqiel' and $p[2] eq 'Gagiel'

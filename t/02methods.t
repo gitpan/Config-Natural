@@ -3,12 +3,12 @@ BEGIN { plan tests => 28 }
 use Config::Natural;
 
 # check that the following class methods are available
-ok( defined \&Config::Natural::new );      #01
-ok( defined \&Config::Natural::options );  #02
+ok( defined Config::Natural->can('new') );      #01
+ok( defined Config::Natural->can('options') );  #02
 
 # create an object
 my $obj = new Config::Natural;
-ok( defined $obj );  #03
+ok( defined $obj and $obj->isa('Config::Natural') );  #03
 
 # check that the following object methods are available
 ok( defined $obj->can('options') );         #04

@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.97';
+$VERSION = '0.98';
 
 my @base = (
     options => {
@@ -47,7 +47,7 @@ for my $option (keys %{$base[1]}) {
 sub new {
     my $class = shift;
     my $self = bless { @base }, $class;
-    if(ref $_[0]) {
+    if(ref $_[0] eq 'HASH') {
         my $opts = shift;
         for my $option (keys %$opts) {
             $options{$option} = $opts->{$option} if exists $options{$option};
@@ -299,10 +299,6 @@ sub param {
     my @arg_list = keys %{$args->{'set'}};
     
     if($current_list) {
-        unless(exists $self->{'param'}{$current_list}) {
-            $self->{'param'}{$current_list} = []
-        }
-        
         $param = ${$self->{'state'}{'lists_stacks'}}[-1];
         
     } else {
@@ -522,22 +518,60 @@ sub dump_param {
     my $args = _parse_args(@_);
     my $prefix = $args->{'set'}{'prefix'} || '';
     my $suffix = $args->{'set'}{'suffix'} || '';
-    my $nospace = $args->{'set'}{'nospace'} || '';
+    my $nospace = $args->{'set'}{'nospace'} || 0;
+
+    return _dump_tree($self, $self->{'param'}, 0, 
+        prefix => $prefix, suffix => $suffix, nospace => $nospace)
+}
+
+
+# 
+# _dump_tree()
+# ----------
+sub _dump_tree {
+    my $self = shift;
+    my $tree = shift;
+    my $level = shift;
+    my %state = @_;
     my $str = '';
     
-    for my $param (sort $self->all_parameters) {
-        next unless $param;
-        ## multi-line value ?
-        my $multiline = 1 if $self->param($param) =~ /\n|\r/;
+    if(ref $tree eq 'HASH') {
+        my $sp = $state{'nospace'} ? '' : ' ';
         
-        $str .= join '', $prefix, $param, 
-                ($nospace ? '' : ' '), 
-                $self->affectation_symbol, 
-                ($nospace ? '' : ' '), 
-                ($multiline ? $self->multiline_begin_symbol . $/ : ''), 
-                $self->param($param), 
-                ($multiline ? $self->multiline_end_symbol   . $/ : ''), 
-                $suffix, $/;
+        # add the list name and symbol
+        $state{'list_name'} and 
+        $str .= join '', 
+                $/, $sp x (($level-1)*2), $state{'list_name'}, $sp, 
+                $self->list_begin_symbol, $/;
+        
+        for my $param (sort keys %$tree) {
+            if(ref($tree->{$param})) {
+                $str .= _dump_tree($self, $tree->{$param}, $level+1, %state, list_name => $param)
+            
+            } else {
+                ## multi-line value?
+                my $multiline = 1 if $tree->{$param} =~ /\n|\r/;
+            
+                $str .= join '', 
+                        $sp x ($level*2), 
+                        $state{'prefix'}, $param, $sp, $self->affectation_symbol, $sp, 
+                        ($multiline ? $self->multiline_begin_symbol . $/ : ''), 
+                        $tree->{$param}, 
+                        ($multiline ? $self->multiline_end_symbol   . $/ : ''), 
+                        $state{'suffix'}, $/;
+            }
+        }
+       
+        # add the list end symbol
+        $state{'list_name'} and 
+        $str .= join '', 
+                $sp x (($level-1)*2), $self->list_end_symbol, $/;
+    
+    } elsif(ref $tree eq 'ARRAY') {
+        for my $list (@$tree) { $str .= _dump_tree($self, $list, $level, %state) }
+    
+    } else {
+        warn "unexpected reference type ", ref($tree)
     }
     
     return $str
@@ -564,6 +598,7 @@ sub write_source {
 1;
 
 __END__
+
 =head1 NAME
 
 Config::Natural - Module that can read easy-to-use configuration files
@@ -776,33 +811,39 @@ being in the first column though.
 
 =head2 Filters
 
-Config::Natural offer two filter mechanisms so that you can modify 
+Config::Natural offer three filter mechanisms so that you can modify 
 the data on-the-fly at two differents moments of the parsing. 
 
-   file.txt
-   ___________           ______________
-  | ...       | ======> | reading line |
-  | foo=hello |         |______________|      ___________
-  | ...       |                X===========> | prefilter |
-  |___________|                v<=========== |___________|
-                        ________________
-                       | parsing line   |     _____________
-                       |       X========|==> | data filter |
-                       |       v========|=== |_____________|
-                       | storing value  |
-                       |________________|
+   file.txt             read_source()
+   ___________          _________________
+  | ...       | =====> | reading file    |
+  | foo=hello |        | > for each line |     _____________
+  | ...       |        |        X <======|==> |  prefilter  |
+  |___________|        |        v        |    |_____________|
+                       |   parsing line -|--,
+                       |_________________|  |
+                                            |
+                        param()  <----------'
+                        _________________      _____________
+                       |         X <=====|==> | data filter |
+                       |         v       |    |_____________|
+                       |         X <=====|==> |   handler   |
+                       |         v       |    |_____________|
+                       |  storing value  |
+                       |_________________|
 
-=head3 Prefilter
+=head2 Prefilter
 
 Prefilter occurs before Config::Natural parsing, therefore a prefilter 
 receives the current line as it was read from the file. This can be 
 used in order to correct some names which otherwise couldn't be parsed 
-by Config::Natural for example. 
+by Config::Natural, for example names with spaces. Check in the 
+F<examples/> directory for sample programs that implements such functions. 
 
 You can set up a prefilter using the C<-E<gt>prefilter()> method, or at 
 creation time with the C<prefilter> option. 
 
-=head3 Data filter
+=head2 Data filter
 
 Data filter only occurs when affecting values to their parameters. 
 This can be used to implement additional features, like a syntax 
@@ -815,7 +856,12 @@ creation time with the C<filter> option.
 
 =head2 Handlers
 
-XXX
+Handlers only occurs when affecting values to their parameters, 
+but instead of being object methods, handlers can be seen as 
+"parameters" methods, in that they are bound to a name, and are 
+only called when a parameter with that name is affected. 
+
+Handlers are defined with the C<-E<gt>handler()> method. 
 
 
 =head1 OBJECTS OPTIONS

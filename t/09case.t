@@ -14,5 +14,5 @@ $obj->read_source(File::Spec->catfile('t','children.txt'));
 ok( $obj->param('First_Children'), $obj->param('first_children') );  #02
 
 # check that arguments can be set independantly of the case
-$obj->param({first_children => "Ayanami Rei 3"});  # Episode 0:23
+$obj->param({first_children => "Ayanami Rei 3"});  # Episode 0:23, Namida
 ok( $obj->param('first_children'), $obj->param('FIRST_CHILDREN') );  #03

@@ -1,13 +1,31 @@
 Version History
 ---------------
 
+2003.11.01 - 0.98
+  - Added a test to verify that the dump_param() bug 
+    is no longer present. 
+  - Added a few other tests here and there. 
+
+2003.10.28 - 0.98b3
+  - Bugfix: dump_param() was not handling lists.
+  - Updated documentation about handlers. 
+
+2003.10.26 - 0.98b2
+  - Bugfix: param() was creating junk empty lists.
+  - Added examples/java-properties.pl
+
+2003.10.24 - 0.98b1
+  - Bugfix: new(\*DATA) was broken. 
+  - Updated MANIFEST to include missing examples. 
+  - Added examples/inner-modify.pl
+
 2003.10.09 - 0.97
-  - added two examples of filter functions in examples/, using 
+  - Added two examples of filter functions in examples/, using 
     these in t/13filter.t
 
 2003.10.07
-  - added support for input filter
-  - 02methods.t: some methods weren't checked
+  - Added support for input filter. 
+  - 02methods.t: some methods weren't checked. 
 
 2003.10.02
   - Updated the documentation. 
