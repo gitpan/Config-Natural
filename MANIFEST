@@ -9,7 +9,7 @@ README
 Makefile.PL
 META.yml
 lib/Config/Natural.pm
-examples/html-template-1.pl
+examples/html-template.pl
 examples/inner-struct.pl
 t/01basic.t
 t/02methods.t

@@ -14,6 +14,8 @@ use Config::Natural;
 Config::Natural->options(-quiet => 1);
 
 if($do_test) {
+    $Data::Dumper::Sortkeys = 1 if defined $Data::Dumper::Sortkeys;
+
     my $obj = new Config::Natural;
     $obj->read_source(File::Spec->catfile('t','eva.txt'));
     

@@ -1,8 +1,9 @@
-#!perl -w
-
+#!/usr/bin/perl -w
+# 
+# This is an example showing how you can use Config::Natural 
+# with HTML::Template. 
+# 
 use strict;
-use lib qw(:lib:);
-
 use Config::Natural;
 use HTML::Template;
 

@@ -1,13 +1,26 @@
 Version History
 ---------------
 
+2003.10.09 - 0.97
+  - added two examples of filter functions in examples/, using 
+    these in t/13filter.t
+
+2003.10.07
+  - added support for input filter
+  - 02methods.t: some methods weren't checked
+
+2003.10.02
+  - Updated the documentation. 
+  - *.t: tests now set $Data::Dumper::Sortkeys when available to 
+    avoid the hash keys randomization introduced in Perl 5.8.1
+
 2003.09.27 - 0.96_02
   - Found a way to prevent Extutils::MakeMaker.PL from 
     messing with Build.PL. 
 
 2003.09.22 - 0.96
   - Replaced warning() and fatal() with carp() and croak(). 
-  - Added syupport for passing options to new(). 
+  - Added support for passing options to new(). 
   - Corrected two bugs: comment_line_symbol was not used and 
     was badly declared in the init hash. 
   - Added the "nospace" option to dump_param() upon 

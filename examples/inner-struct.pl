@@ -1,4 +1,9 @@
 #!/usr/bin/perl -w
+# 
+# This simple example will show you the inner structure of 
+# the data in the object. It is the same as the one used in 
+# HTML::Template. 
+# 
 use strict;
 use Config::Natural;
 use Data::Dumper;

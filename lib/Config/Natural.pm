@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw($CLASS $VERSION);
 $CLASS   = 'Config::Natural';
-$VERSION = '0.96_02';
+$VERSION = '0.97';
 
 my @base = (
     options => {
@@ -25,6 +25,8 @@ my @base = (
     state => {  }, 
     param => {  }, 
     handlers => {  }, 
+    prefilter => 0, 
+    filter => 0, 
 );
 
 # class option
@@ -49,7 +51,9 @@ sub new {
         my $opts = shift;
         for my $option (keys %$opts) {
             $options{$option} = $opts->{$option} if exists $options{$option};
-            $self->{options}{$option} = $opts->{$option};
+            $self->{'options'}{$option} = $opts->{$option};
+            $self->filter($opts->{$option}) if $option eq 'filter';
+            $self->prefilter($opts->{$option}) if $option eq 'prefilter';
         }
     }
     $self->read_source(shift) if @_;
@@ -172,6 +176,9 @@ sub read_source {
     $state->{filename} = $file;
     
     while(defined($_ = <$fh>)) {
+        ## execute the prefilter if present
+        $self->{'prefilter'} and $_ = &{$self->{'prefilter'}}($self, $_);
+        
         next if /^\s*$/;  # skip empty lines
         next if /^\s*$comment/;  # skip comments
         chomp;
@@ -305,12 +312,15 @@ sub param {
     for my $arg (@arg_list) {
         my $value = $args->{'set'}{$arg};
         
-        ## check for a handler
-        if($self->has_handler($arg)) {
-            $param->{_case_($self, $arg)} = $self->exec_handler($arg, $value)
-        } else {
-            $param->{_case_($self, $arg)} = $value
-        }
+        ## use the filter if present
+        $self->{'filter'} and
+            $value = &{$self->{'filter'}}($self, $value);
+        
+        ## use the handler if present
+        $self->{'handlers'}{$arg} and 
+            $value = $self->exec_handler($arg, $value);
+        
+        $param->{_case_($self, $arg)} = $value
     }
     
     return wantarray ? @retlist : $retlist[0]
@@ -371,6 +381,32 @@ sub _parse_args {
 
 
 # 
+# prefilter()
+# ---------
+# Set a new prefilter. 
+# 
+sub prefilter {
+    my $self = shift;
+    my $code = shift;
+    croak "Not a CODEREF" unless ref $code eq 'CODE';
+    $self->{'prefilter'} = $code;
+}
+
+
+# 
+# filter()
+# ------
+# Set a new filter. 
+# 
+sub filter {
+    my $self = shift;
+    my $code = shift;
+    croak "Not a CODEREF" unless ref $code eq 'CODE';
+    $self->{'filter'} = $code;
+}
+
+
+# 
 # set_handler()
 # -----------
 # Set a new handler for a parameter
@@ -378,8 +414,8 @@ sub _parse_args {
 sub set_handler {
     my $self = shift;
     my $param = shift;
-    my $sub = shift;
-    $self->{'handlers'}{$param} = $sub;
+    my $code = shift;
+    $self->{'handlers'}{$param} = $code;
 }
 
 
@@ -711,7 +747,7 @@ but instead
     }
 
 I don't think it's a big deal, because the aim of Config::Natural 
-is to be fast and read files with a clear and simple syntax. 
+is to be fast and to read files with a clear and simple syntax. 
 
 
 =head2 Inclusion
@@ -734,6 +770,52 @@ directory are included. Check read_source() for more information.
 You can use comments in your file. If a line begins with a 
 sharp sign C<"#">, it will be ignored. The sharp sign needs not 
 being in the first column though. 
+
+
+=head1 SPECIAL FEATURES
+
+=head2 Filters
+
+Config::Natural offer two filter mechanisms so that you can modify 
+the data on-the-fly at two differents moments of the parsing. 
+
+   file.txt
+   ___________           ______________
+  | ...       | ======> | reading line |
+  | foo=hello |         |______________|      ___________
+  | ...       |                X===========> | prefilter |
+  |___________|                v<=========== |___________|
+                        ________________
+                       | parsing line   |     _____________
+                       |       X========|==> | data filter |
+                       |       v========|=== |_____________|
+                       | storing value  |
+                       |________________|
+
+=head3 Prefilter
+
+Prefilter occurs before Config::Natural parsing, therefore a prefilter 
+receives the current line as it was read from the file. This can be 
+used in order to correct some names which otherwise couldn't be parsed 
+by Config::Natural for example. 
+
+You can set up a prefilter using the C<-E<gt>prefilter()> method, or at 
+creation time with the C<prefilter> option. 
+
+=head3 Data filter
+
+Data filter only occurs when affecting values to their parameters. 
+This can be used to implement additional features, like a syntax 
+for interpolating values. Check in the F<examples/> directory for 
+sample programs that implements such functions. 
+
+You can set up a data filter using the C<-E<gt>filter()> method, or at 
+creation time with the C<filter> option. 
+
+
+=head2 Handlers
+
+XXX
 
 
 =head1 OBJECTS OPTIONS
@@ -812,8 +894,23 @@ when reading a directory. Default is 0 (don't read hidden files).
 
 =item new ( )
 
-This method creates a new object. You can give an optional parameter, in 
-which case the read_source() method is called with that parameter. 
+=item new ( [ OPTIONS, ] FILE )
+
+This method creates a new object. 
+
+You can give an optional hashref in order to change settings of the 
+object at creation time. Any valid object option can be used here. 
+
+    my $config = new Config::Natural { read_hidden_files => 1 };
+
+You can also give a file name or a file handle, which will call 
+read_source() with that argument. 
+
+    # calling with a file name
+    my $config = new Config::Natural 'myconfig.conf';
+    
+    # calling with a file handle
+    my $config = new Config::Natural \*DATA;
 
 
 =item read_source ( I<FILENAME> )
@@ -961,6 +1058,32 @@ This method writes the current object to the given file name or file
 handle. Remaining parameters, if any, will be passed unmodified to 
 dump_param(). If no argument is given, the file or handle used by 
 the last call of read_source() will be used. 
+
+
+=item filter ( I<CODEREF> )
+
+This method can be used to set a new data filter. 
+The subroutine code will be considered as an object method and 
+will receive the data as it was read. The return value of the 
+function will be used as the actual value. 
+For example: 
+
+    sub myfilter {
+        my $self = shift;  # important! remember it's a method
+        my $data = shift;
+        $data =~ s/\s*#.*$//go;  # remove comments appearing on 
+        return $data          # an affectation line
+    }
+    
+    my $conf = new Config::Natural { filter => \&myfilter };
+
+
+=item prefilter ( I<CODEREF> )
+
+This method can be used to set up a new input prefilter. 
+The same rules as for data filters applies, the only difference 
+being in that the prefilter can modify the data before 
+Config::Natural parses it. 
 
 
 =item set_handler ( I<PARAM, CODEREF> )
